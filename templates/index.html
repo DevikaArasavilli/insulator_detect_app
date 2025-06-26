@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Insulator Fault Detection System</title>
+
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=Montserrat:wght@600;700&display=swap" rel="stylesheet" />
+
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+
+  <!-- ✅ External CSS -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
+</head>
+<body>
+   <!-- Header -->
+  <header>
+    <div class="container header-content">
+            <div class="logo">
+                <i class="fas fa-bolt"></i>
+                <h1>InsightGuard</h1>
+            </div>
+    <nav>
+      <ul>
+        <li><a onclick="toggleSection('home')">Home</a></li>
+        <li><a onclick="toggleSection('how-it-works')">How It Works</a></li>
+        <li><a onclick="toggleSection('about')">About</a></li>
+        <li><a onclick="toggleSection('contact')">Contact</a></li>
+        <li><a onclick="toggleSection('feedback')">Feedback & Questions</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <!-- Home Section -->
+  <section id="home" class="toggle-section">
+    <h2>Welcome to InsightGuard</h2>
+    <p>
+      <strong>InsightGuard</strong> is an AI-powered web application designed to detect faults in high-voltage power line insulators. By analyzing images from multiple perspectives, it helps ensure:
+    </p>
+    <ul>
+      <li>⚡ Preventive maintenance of power infrastructure</li>
+      <li>📉 Reduction in manual inspection costs and errors</li>
+      <li>🔍 Early detection of physical or structural damage</li>
+    </ul>
+    <p>
+      Upload images from all four views of an insulator – front, back, left, and right – and our intelligent model will evaluate each side for defects.
+    </p>
+  </section>
+
+  <!-- How It Works -->
+  <section id="how-it-works" class="toggle-section">
+    <h2>How It Works</h2>
+    <ol>
+      <li><strong>Upload Images:</strong> Provide four images covering all angles – Front, Back, Left, and Right.</li>
+      <li><strong>AI Model Processing:</strong> Each image is analyzed by a trained Convolutional Neural Network (CNN).</li>
+      <li><strong>Per-View Diagnosis:</strong> Visual results for each view are shown with confidence scores and defect highlights.</li>
+      <li><strong>Final Verdict:</strong> If any one view is defective, the overall insulator is marked as <strong>“Defective”</strong>.</li>
+    </ol>
+    <p>Results are delivered within seconds after upload – making it fast and reliable for engineers and field operators.</p>
+  </section>
+
+  <!-- About Section -->
+  <section id="about" class="toggle-section">
+    <h2>About InsightGuard</h2>
+    <p>
+      This project was developed by a team of passionate engineers aiming to modernize and automate power system inspections using deep learning and computer vision.
+    </p>
+    <p>Highlights of the project:</p>
+    <ul>
+      <li>🔬 Trained on a curated dataset of insulator images</li>
+      <li>🤖 CNN model built with TensorFlow/Keras</li>
+      <li>🖼️ Image preprocessing with OpenCV for accuracy</li>
+      <li>🌐 Deployed using Flask backend and interactive HTML/CSS frontend</li>
+    </ul>
+    <p>
+      The system is scalable and adaptable for real-time deployment with drone image feeds and SCADA integrations in future versions.
+    </p>
+  </section>
+
+<!-- Contact Section -->
+<section id="contact" class="toggle-section">
+  <h2>Contact Our Team</h2>
+  <p>We’re here to help! Reach out to any of our team members directly:</p>
+
+  <div class="team-grid">
+    <!-- Devika -->
+    <div class="team-card">
+      <h3>Devika Arasavilli</h3>
+      <p>Role: Frontend & Project Lead</p>
+      <p>📧 <a href="mailto:devika.insightguard@gmail.com">devika.insightguard@gmail.com</a></p>
+      <p>🔗 <a href="https://linkedin.com/in/devika" target="_blank">LinkedIn</a></p>
+    </div>
+
+    <!-- Surya -->
+    <div class="team-card">
+      <h3>Surya</h3>
+      <p>Role: Backend & Integration</p>
+      <p>📧 <a href="mailto:surya.insightguard@gmail.com">surya.insightguard@gmail.com</a></p>
+      <p>🔗 <a href="https://linkedin.com/in/surya" target="_blank">LinkedIn</a></p>
+    </div>
+
+    <!-- Pradeep -->
+    <div class="team-card">
+      <h3>Pradeep</h3>
+      <p>Role: UI Design & Deployment</p>
+      <p>📧 <a href="mailto:pradeep.insightguard@gmail.com">pradeep.insightguard@gmail.com</a></p>
+      <p>🔗 <a href="https://linkedin.com/in/pradeep" target="_blank">LinkedIn</a></p>
+    </div>
+
+    <!-- Abhishek -->
+    <div class="team-card">
+      <h3>Abhishek</h3>
+      <p>Role: Model Training & Evaluation</p>
+      <p>📧 <a href="mailto:abhishek.insightguard@gmail.com">abhishek.insightguard@gmail.com</a></p>
+      <p>🔗 <a href="https://linkedin.com/in/abhishek" target="_blank">LinkedIn</a></p>
+    </div>
+  </div>
+</section>
+
+  <!-- Feedback Section -->
+  <section id="feedback" class="toggle-section">
+    <h2>Feedback & Questions</h2>
+    <p>
+      Have suggestions, doubts, or feedback? Fill out the form below and our team will respond as soon as possible.
+    </p>
+    <iframe 
+      src="https://docs.google.com/forms/d/e/1FAIpQLSe1t5Z5Impn92X8aBunuepRQLj5zryzhDZSnAZ9N9yP6LykJA/viewform?embedded=true"
+      width="100%" height="600">
+      Loading…
+    </iframe>
+  </section>
+
+    <section class="hero">
+        <div class="hero-content">
+            <h2>Advanced Insulator Fault Detection</h2>
+            <p>Detect and visualize defects in electrical insulators from multiple angles</p>
+        </div>
+    </section>
+
+    <div class="container">
+    <section class="upload-section">
+        <h2 class="section-title">Upload Insulator Images</h2>
+        <p style="text-align: center; margin-bottom: 2rem; color: var(--gray);">
+            Upload images from all <strong>4 views</strong> for a complete analysis.
+            You can also <span style="color: #007bff; font-weight: 500;">drag & drop</span> images.
+        </p>
+
+        <form id="uploadForm" method="POST" action="/predict" enctype="multipart/form-data">
+            <div class="upload-container">
+                <!-- Upload box template -->
+                <div class="upload-box" id="frontUpload">
+                    <label for="frontInput" title="Upload front view">
+                        <i class="fas fa-camera"></i>
+                        <h3>Front View</h3>
+                        <p>Click or drop image</p>
+                        <input type="file" id="frontInput" name="front" accept="image/*" required hidden>
+                    </label>
+                    <img id="frontPreview" class="img-preview" style="display:none;" />
+                </div>
+
+                <div class="upload-box" id="backUpload">
+                    <label for="backInput" title="Upload back view">
+                        <i class="fas fa-camera"></i>
+                        <h3>Back View</h3>
+                        <p>Click or drop image</p>
+                        <input type="file" id="backInput" name="back" accept="image/*" required hidden>
+                    </label>
+                    <img id="backPreview" class="img-preview" style="display:none;" />
+                </div>
+
+                <div class="upload-box" id="leftUpload">
+                    <label for="leftInput" title="Upload left view">
+                        <i class="fas fa-camera"></i>
+                        <h3>Left Side</h3>
+                        <p>Click or drop image</p>
+                        <input type="file" id="leftInput" name="left" accept="image/*" required hidden>
+                    </label>
+                    <img id="leftPreview" class="img-preview" style="display:none;" />
+                </div>
+
+                <div class="upload-box" id="rightUpload">
+                    <label for="rightInput" title="Upload right view">
+                        <i class="fas fa-camera"></i>
+                        <h3>Right Side</h3>
+                        <p>Click or drop image</p>
+                        <input type="file" id="rightInput" name="right" accept="image/*" required hidden>
+                    </label>
+                    <img id="rightPreview" class="img-preview" style="display:none;" />
+                </div>
+            </div>
+          <div class="preview-container" id="previewContainer">
+                    <!-- Preview images will be inserted here -->
+                </div>
+        
+                <button type="submit" class="btn btn-block">Analyze Insulator</button>
+            </form>
+        </section>
+        
+        <div class="spinner" id="spinner"></div>
+        
+        <section class="results-section" id="resultsSection">
+            <h2 class="section-title">Analysis Results</h2>
+            
+            <div class="status-card" id="statusCard">
+                <div class="status-icon">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                <h3 class="status-title">Insulator Status: Normal</h3>
+                <p class="status-desc">No defects detected in the analyzed views</p>
+            </div>
+            
+            <div class="results-grid" id="resultsGrid">
+                <!-- Individual results will be inserted here -->
+            </div>
+            
+            <div class="combined-result">
+                <h3 style="margin-bottom: 1rem; color: var(--primary-dark);">Combined Defect Visualization</h3>
+                <img id="combinedVisualization" src="" alt="Combined defect visualization">
+            </div>
+            
+            <button class="btn btn-secondary btn-block" style="margin-top: 2rem;" id="newAnalysisBtn">
+                Perform New Analysis
+            </button>
+        </form>
+    </section>
+</div>
+
+
+    <footer>
+        <div class="container footer-content">
+            <div class="footer-logo">
+                <i class="fas fa-bolt"></i>
+                <h2>InsightGuard</h2>
+            </div>
+            <div class="footer-links">
+                <a href="#">Privacy Policy</a>
+                <a href="#">Terms of Service</a>
+                <a href="#">Contact Us</a>
+            </div>
+            <div class="footer-social">
+                <a href="#"><i class="fab fa-twitter"></i></a>
+                <a href="#"><i class="fab fa-linkedin"></i></a>
+                <a href="#"><i class="fab fa-github"></i></a>
+            </div>
+            <p class="copyright">© 2025 InsightGuard. All rights reserved.</p>
+        </div>
+    </footer>
+>  <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+</html>
+̌
+        
