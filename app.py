@@ -38,7 +38,7 @@ def allowed_file(filename):
 
 def preprocess_image(image_path):
     img = Image.open(image_path).convert('RGB')
-    img = img.resize((32, 32))  # already optimized
+    img = img.resize((32, 32))
     img_array = tf.keras.preprocessing.image.img_to_array(img)
     return np.expand_dims(img_array, axis=0) / 255.0
 
@@ -114,13 +114,17 @@ def predict():
                 if img_vis is not None:
                     combined_images.append(cv2.resize(img_vis, (150, 150)))
 
-        # ⚠️ Disabled combined image generation (to reduce memory)
-        # combined_image = cv2.hconcat(combined_images)
-        # combined_path = os.path.join(app.config['UPLOAD_FOLDER'], 'combined_visualization.jpg')
-        # cv2.imwrite(combined_path, combined_image)
-        # combined_url = url_for('static', filename='uploads/combined_visualization.jpg')
-
-        combined_url = ""  # not used
+        # ✅ Enable combined image visualization
+        combined_url = ""
+        if combined_images:
+            try:
+                combined_image = cv2.hconcat(combined_images)
+                combined_path = os.path.join(app.config['UPLOAD_FOLDER'], 'combined_visualization.jpg')
+                cv2.imwrite(combined_path, combined_image)
+                combined_url = url_for('static', filename='uploads/combined_visualization.jpg')
+            except Exception as concat_err:
+                print("⚠️ Could not generate combined image:", str(concat_err))
+                combined_url = ""
 
         overall_status = 'Defective' if any(r['prediction'] == 'Defective' for r in results) else 'Normal'
 

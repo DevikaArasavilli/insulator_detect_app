@@ -786,20 +786,17 @@ body {
             <div class="results-grid" id="resultsGrid">
                 <!-- Individual results will be inserted here -->
             </div>
-            
-            <div class="combined-result">
-                <h3 style="margin-bottom: 1rem; color: var(--primary-dark);">Combined Defect Visualization</h3>
-                <img id="combinedVisualization" src="" alt="Combined defect visualization">
-            </div>
-            
+          <div id="combined-visuals" style="margin-top: 20px; text-align: center; display: none;">
+            <h3>Combined Visualization</h3>
+            <img id="combined-visual-img" src="" style="max-width: 100%; border: 2px solid #000;" />
+          </div>
+
             <button class="btn btn-secondary btn-block" style="margin-top: 2rem;" id="newAnalysisBtn">
                 Perform New Analysis
             </button>
         </form>
     </section>
-</div>
-
-
+  </div>
     <footer>
         <div class="container footer-content">
             <div class="footer-logo">
@@ -866,6 +863,8 @@ body {
     const statusCard = document.getElementById('statusCard');
     const spinner = document.getElementById('spinner');
     const combinedVisualization = document.getElementById('combinedVisualization');
+    const combinedVisualImg = document.getElementById('combined-visual-img');
+    const combinedVisualsSection = document.getElementById('combined-visuals');
     const newAnalysisBtn = document.getElementById('newAnalysisBtn');
 
     Object.keys(fileInputs).forEach(view => {
@@ -955,16 +954,16 @@ body {
         method: 'POST',
         body: formData
       })
-      .then(res => res.json())
-      .then(data => {
-        spinner.style.display = 'none';
-        displayResults(data);
-      })
-      .catch(err => {
-        spinner.style.display = 'none';
-        alert('Error during analysis. Please try again.');
-        console.error(err);
-      });
+        .then(res => res.json())
+        .then(data => {
+          spinner.style.display = 'none';
+          displayResults(data);
+        })
+        .catch(err => {
+          spinner.style.display = 'none';
+          alert('Error during analysis. Please try again.');
+          console.error(err);
+        });
     });
 
     function displayResults(data) {
@@ -995,9 +994,15 @@ body {
         resultsGrid.appendChild(resultCard);
       });
 
-      // ✅ Force refresh with timestamp to avoid cache
-      combinedVisualization.src = `${data.combined_visualization}?t=${new Date().getTime()}`;
-      combinedVisualization.alt = 'Combined defect visualization';
+      // ✅ Combined Visualization Handling
+      if (data.combined_visualization) {
+        combinedVisualImg.src = `${data.combined_visualization}?t=${new Date().getTime()}`;
+        combinedVisualImg.alt = "Combined Defect Visualization";
+        combinedVisualsSection.style.display = "block";
+      } else {
+        combinedVisualImg.src = "";
+        combinedVisualsSection.style.display = "none";
+      }
 
       resultsSection.style.display = 'block';
       resultsSection.scrollIntoView({ behavior: 'smooth' });
@@ -1008,15 +1013,17 @@ body {
       previewContainer.style.display = 'none';
       previewContainer.innerHTML = '';
       resultsSection.style.display = 'none';
+      combinedVisualImg.src = '';
+      combinedVisualsSection.style.display = 'none';
+
       Object.keys(uploadBoxes).forEach(view => {
         uploadBoxes[view].style.borderColor = 'var(--light-gray)';
         uploadBoxes[view].style.backgroundColor = 'transparent';
       });
+
       uploadForm.scrollIntoView({ behavior: 'smooth' });
     });
   });
 </script>
 </body>
 </html>
-̌
-        
