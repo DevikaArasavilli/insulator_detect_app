@@ -19,7 +19,12 @@ app.config['ALLOWED_EXTENSIONS'] = {'png', 'jpg', 'jpeg'}
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB
 
 # Load model
-MODEL_PATH = 'insulator_model.h5'
+# Load model
+MODEL_PATH = os.path.join(os.path.dirname(__file__), 'insulator_model.h5')
+print(f"🔍 Looking for model at: {MODEL_PATH}")
+print(f"📂 Current working directory: {os.getcwd()}")
+print(f"📄 Model file exists: {os.path.exists(MODEL_PATH)}")
+
 try:
     model = tf.keras.models.load_model(MODEL_PATH)
     print("✅ Model loaded successfully")
