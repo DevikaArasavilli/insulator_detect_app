@@ -88,8 +88,21 @@ def predict():
 
                 processed_img = preprocess_image(filepath)
                 prediction = model.predict(processed_img, verbose=0)[0]
-                confidence = float(prediction[1]) * 100
-                is_defective = prediction[1] > 0.5
+                print(f"✅ Raw prediction for {view}: {prediction}")
+
+                # Flexible prediction shape handling
+                if isinstance(prediction, np.ndarray):
+                    if len(prediction) > 1:
+                        confidence = float(prediction[1]) * 100
+                        is_defective = prediction[1] > 0.5
+                    else:
+                        confidence = float(prediction[0]) * 100
+                        is_defective = prediction[0] > 0.5
+                else:
+                    confidence = float(prediction) * 100
+                    is_defective = prediction > 0.5
+
+                print(f"View: {view}, Confidence: {confidence:.2f}%, Status: {'Defective' if is_defective else 'Normal'}")
 
                 defects = detect_defects(filepath) if is_defective else []
                 vis_path = filepath
@@ -142,6 +155,6 @@ def predict():
         traceback.print_exc()
         return jsonify({'error': 'Error during analysis. Please try again.'}), 500
 
-# Render
+# Run the app (for local testing)
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=10000)
