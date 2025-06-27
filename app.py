@@ -11,8 +11,15 @@ import tensorflow as tf
 app = Flask(__name__)
 
 # Configuration
-app.config['UPLOAD_FOLDER'] = 'static/uploads'
-os.makedirs('static/uploads', exist_ok=True)
+upload_path = 'static/uploads'
+
+# Safely handle if a file exists instead of a folder
+if os.path.exists(upload_path):
+    if not os.path.isdir(upload_path):
+        os.remove(upload_path)
+os.makedirs(upload_path, exist_ok=True)
+
+app.config['UPLOAD_FOLDER'] = upload_path
 app.config['ALLOWED_EXTENSIONS'] = {'png', 'jpg', 'jpeg'}
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB
 
@@ -89,10 +96,8 @@ def predict():
                 'defects': defects
             })
 
-            # For combined image grid
             combined_images.append(cv2.resize(cv2.imread(vis_path), (150, 150)))
 
-    # Create combined visualization
     if combined_images:
         combined_image = cv2.hconcat(combined_images)
         combined_path = os.path.join(app.config['UPLOAD_FOLDER'], 'combined_visualization.jpg')
