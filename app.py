@@ -19,7 +19,6 @@ app.config['ALLOWED_EXTENSIONS'] = {'png', 'jpg', 'jpeg'}
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB
 
 # Load model
-# Load model
 MODEL_PATH = os.path.join(os.path.dirname(__file__), 'insulator_model.h5')
 print(f"🔍 Looking for model at: {MODEL_PATH}")
 print(f"📂 Current working directory: {os.getcwd()}")
@@ -38,7 +37,8 @@ def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in app.config['ALLOWED_EXTENSIONS']
 
 def preprocess_image(image_path):
-    img = Image.open(image_path).convert('RGB').resize((32, 32))
+    img = Image.open(image_path).convert('RGB')
+    img = img.resize((32, 32))  # already optimized
     img_array = tf.keras.preprocessing.image.img_to_array(img)
     return np.expand_dims(img_array, axis=0) / 255.0
 
@@ -83,8 +83,7 @@ def predict():
 
                 processed = preprocess_image(filepath)
                 prediction = model.predict(processed, verbose=0)[0]
-                
-                # Binary classification: prediction = [prob_class_0, prob_class_1]
+
                 if len(prediction) == 1:
                     confidence = float(prediction[0]) * 100
                     is_defective = prediction[0] > 0.5
@@ -115,12 +114,13 @@ def predict():
                 if img_vis is not None:
                     combined_images.append(cv2.resize(img_vis, (150, 150)))
 
-        combined_url = ""
-        if combined_images:
-            combined_image = cv2.hconcat(combined_images)
-            combined_path = os.path.join(app.config['UPLOAD_FOLDER'], 'combined_visualization.jpg')
-            cv2.imwrite(combined_path, combined_image)
-            combined_url = url_for('static', filename='uploads/combined_visualization.jpg')
+        # ⚠️ Disabled combined image generation (to reduce memory)
+        # combined_image = cv2.hconcat(combined_images)
+        # combined_path = os.path.join(app.config['UPLOAD_FOLDER'], 'combined_visualization.jpg')
+        # cv2.imwrite(combined_path, combined_image)
+        # combined_url = url_for('static', filename='uploads/combined_visualization.jpg')
+
+        combined_url = ""  # not used
 
         overall_status = 'Defective' if any(r['prediction'] == 'Defective' for r in results) else 'Normal'
 
