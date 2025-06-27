@@ -8,10 +8,9 @@ from PIL import Image
 import tensorflow as tf
 import traceback
 
-# Initialize app
 app = Flask(__name__)
 
-# Configuration
+# Config
 upload_path = 'static/uploads'
 if os.path.exists(upload_path):
     if not os.path.isdir(upload_path):
@@ -22,15 +21,16 @@ app.config['UPLOAD_FOLDER'] = upload_path
 app.config['ALLOWED_EXTENSIONS'] = {'png', 'jpg', 'jpeg'}
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB
 
-# Load the model
+# Load model
 MODEL_PATH = 'insulator_model.h5'
 try:
     model = tf.keras.models.load_model(MODEL_PATH)
+    print("✅ Model loaded successfully")
 except Exception as e:
     print(f"❌ Error loading model: {e}")
     model = None
 
-# Utility functions
+# Helpers
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in app.config['ALLOWED_EXTENSIONS']
 
@@ -47,7 +47,7 @@ def detect_defects(image_path):
     try:
         img = cv2.imread(image_path)
         if img is None:
-            raise ValueError("Image could not be loaded.")
+            raise ValueError("cv2.imread returned None.")
         gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
         _, threshold = cv2.threshold(gray, 200, 255, cv2.THRESH_BINARY_INV)
         contours, _ = cv2.findContours(threshold, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
@@ -59,7 +59,7 @@ def detect_defects(image_path):
                 defects.append({'x': x, 'y': y, 'severity': 'high' if area > 1000 else 'medium'})
         return defects
     except Exception as e:
-        print(f"❌ Error detecting defects: {e}")
+        print(f"❌ Defect detection error: {e}")
         return []
 
 # Routes
@@ -74,7 +74,7 @@ def predict():
             raise RuntimeError("Model not loaded.")
 
         if not all(view in request.files for view in ['front', 'back', 'left', 'right']):
-            return jsonify({'error': 'All 4 view images (front, back, left, right) are required.'}), 400
+            return jsonify({'error': 'All 4 view images are required.'}), 400
 
         results = []
         combined_images = []
@@ -87,7 +87,7 @@ def predict():
                 file.save(filepath)
 
                 processed_img = preprocess_image(filepath)
-                prediction = model.predict(processed_img)[0]
+                prediction = model.predict(processed_img, verbose=0)[0]
                 confidence = float(prediction[1]) * 100
                 is_defective = prediction[1] > 0.5
 
@@ -96,11 +96,12 @@ def predict():
 
                 if is_defective:
                     img = cv2.imread(filepath)
-                    for defect in defects:
-                        cv2.rectangle(img, (defect['x'], defect['y']),
-                                      (defect['x'] + 10, defect['y'] + 10), (0, 0, 255), 2)
-                    vis_path = os.path.join(app.config['UPLOAD_FOLDER'], f"vis_{filename}")
-                    cv2.imwrite(vis_path, img)
+                    if img is not None:
+                        for defect in defects:
+                            cv2.rectangle(img, (defect['x'], defect['y']),
+                                          (defect['x'] + 10, defect['y'] + 10), (0, 0, 255), 2)
+                        vis_path = os.path.join(app.config['UPLOAD_FOLDER'], f"vis_{filename}")
+                        cv2.imwrite(vis_path, img)
 
                 results.append({
                     'view': view.capitalize(),
@@ -110,14 +111,20 @@ def predict():
                     'defects': defects
                 })
 
-                img_resized = cv2.resize(cv2.imread(vis_path), (150, 150))
-                combined_images.append(img_resized)
+                img_vis = cv2.imread(vis_path)
+                if img_vis is not None:
+                    img_resized = cv2.resize(img_vis, (150, 150))
+                    combined_images.append(img_resized)
 
         if combined_images:
-            combined_image = cv2.hconcat(combined_images)
-            combined_path = os.path.join(app.config['UPLOAD_FOLDER'], 'combined_visualization.jpg')
-            cv2.imwrite(combined_path, combined_image)
-            combined_url = url_for('static', filename='uploads/combined_visualization.jpg')
+            try:
+                combined_image = cv2.hconcat(combined_images)
+                combined_path = os.path.join(app.config['UPLOAD_FOLDER'], 'combined_visualization.jpg')
+                cv2.imwrite(combined_path, combined_image)
+                combined_url = url_for('static', filename='uploads/combined_visualization.jpg')
+            except Exception as e:
+                print(f"❌ Error combining images: {e}")
+                combined_url = ""
         else:
             combined_url = ""
 
@@ -135,6 +142,6 @@ def predict():
         traceback.print_exc()
         return jsonify({'error': 'Error during analysis. Please try again.'}), 500
 
-# For Render deployment
+# Render
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=10000)
