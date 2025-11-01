@@ -21,14 +21,18 @@ app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16 MB
 # Clear previous uploads
 for f in glob.glob(os.path.join(UPLOAD_FOLDER, "*")):
     if os.path.isfile(f):
-        try: os.remove(f)
-        except: pass
+        try:
+            os.remove(f)
+        except:
+            pass
 
 # ---------------- LOAD MODEL ---------------- #
-MODEL_PATH = os.path.join(os.path.dirname(__file__), 'insulator_model.h5')
+# ✅ Corrected model path
+MODEL_PATH = os.path.join(os.path.dirname(__file__), 'model', 'insulator_model.h5')
+
 try:
     model = tf.keras.models.load_model(MODEL_PATH)
-    print("✅ Model loaded successfully")
+    print(f"✅ Model loaded successfully from: {MODEL_PATH}")
 except Exception as e:
     print(f"❌ Error loading model: {e}")
     model = None
@@ -40,15 +44,16 @@ def allowed_file(filename):
 def preprocess_image(image_path):
     try:
         img = Image.open(image_path).convert('RGB')
-        img = img.resize((128,128))
-        img_array = tf.keras.preprocessing.image.img_to_array(img)/255.0
+        img = img.resize((128, 128))
+        img_array = tf.keras.preprocessing.image.img_to_array(img) / 255.0
         return np.expand_dims(img_array, axis=0)
     except:
         return None
 
 def detect_defects(image_path):
     img = cv2.imread(image_path)
-    if img is None: return []
+    if img is None:
+        return []
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
     _, thresh = cv2.threshold(gray, 200, 255, cv2.THRESH_BINARY_INV)
     contours, _ = cv2.findContours(thresh, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
@@ -56,8 +61,8 @@ def detect_defects(image_path):
     for c in contours:
         area = cv2.contourArea(c)
         if 100 < area < 5000:
-            x,y,w,h = cv2.boundingRect(c)
-            defects.append({'x':x,'y':y,'w':w,'h':h,'severity':'high' if area>1000 else 'medium'})
+            x, y, w, h = cv2.boundingRect(c)
+            defects.append({'x': x, 'y': y, 'w': w, 'h': h, 'severity': 'high' if area > 1000 else 'medium'})
     return defects
 
 # ---------------- ROUTES ---------------- #
@@ -89,7 +94,6 @@ def send_message():
         email = request.form.get('email')
         message = request.form.get('message')
 
-        # Print message to console (or integrate email functionality here)
         print(f"New message from {name} ({email}): {message}")
 
         flash("Your message has been sent successfully!", "success")
@@ -105,10 +109,11 @@ def send_message():
 def predict():
     try:
         if model is None:
-            return jsonify({'error': 'Model not loaded'}),500
-        required_views = ['front','back','left','right']
+            return jsonify({'error': 'Model not loaded'}), 500
+
+        required_views = ['front', 'back', 'left', 'right']
         if not all(view in request.files for view in required_views):
-            return jsonify({'error':'All 4 views required'}),400
+            return jsonify({'error': 'All 4 views required'}), 400
 
         results = []
         for view in required_views:
@@ -119,33 +124,34 @@ def predict():
                 file.save(filepath)
 
                 processed = preprocess_image(filepath)
-                if processed is None: continue
+                if processed is None:
+                    continue
 
                 prediction = model.predict(processed, verbose=0)[0]
-                confidence = float(prediction[0])*100
+                confidence = float(prediction[0]) * 100
                 is_defective = prediction[0] > 0.5
                 defects = detect_defects(filepath) if is_defective else []
 
-                # Visualization
                 vis_path = filepath
                 if is_defective and defects:
                     img = cv2.imread(filepath)
                     for d in defects:
-                        cv2.rectangle(img,(d['x'],d['y']),(d['x']+d['w'],d['y']+d['h']),(0,0,255),2)
+                        cv2.rectangle(img, (d['x'], d['y']), (d['x'] + d['w'], d['y'] + d['h']), (0, 0, 255), 2)
                     vis_path = os.path.join(app.config['UPLOAD_FOLDER'], f"vis_{filename}")
-                    cv2.imwrite(vis_path,img)
+                    cv2.imwrite(vis_path, img)
 
                 results.append({
                     'view': view.capitalize(),
                     'prediction': 'Defective' if is_defective else 'Normal',
-                    'confidence': round(confidence,2),
+                    'confidence': round(confidence, 2),
                     'visualization': url_for('static', filename=f"uploads/{os.path.basename(vis_path)}"),
                     'reason': "Detected defects" if is_defective else "No visible defects"
                 })
+
         return jsonify({'results': results})
     except Exception as e:
         traceback.print_exc()
-        return jsonify({'error':'Error during analysis'}),500
+        return jsonify({'error': 'Error during analysis'}), 500
 
 # ---------------- MAIN ---------------- #
 if __name__ == '__main__':
