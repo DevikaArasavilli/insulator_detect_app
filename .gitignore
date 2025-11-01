@@ -16,7 +16,6 @@ uploads/
 *.zip
 
 # Model files (if large)
-*.h5
 *.hdf5
 *.pkl
 *.npy
