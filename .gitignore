@@ -1,0 +1,30 @@
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Virtual environments
+venv/
+ENV/
+env/
+
+# Dataset and uploads
+dataset/
+insulator-faults-detection-1/
+uploads/
+*.zip
+
+# Model files (if large)
+*.h5
+*.hdf5
+*.pkl
+*.npy
+
+# System files
+.DS_Store
+Thumbs.db
+
+# IDE and config
+.vscode/
+.idea/

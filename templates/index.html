@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>InsightGuard - Landing Page</title>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=Montserrat:wght@600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+<style>
+:root { --primary: #4361ee; --dark: #212529; --light: #f8f9fa; }
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: 'Segoe UI', sans-serif; background: var(--light); color: #333; }
+
+/* Header */
+header { background-color: var(--dark); padding: 1.5rem 20px; position: sticky; top: 0; z-index: 1000; }
+.header-content { max-width: 1200px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; }
+.logo { display: flex; align-items: center; color: var(--primary); font-size: 2rem; font-weight: bold; }
+.logo i { margin-right: 0.5rem; font-size: 2.2rem; color: var(--primary); }
+nav ul { list-style: none; display: flex; gap: 25px; }
+nav ul li a { color: white; text-decoration: none; font-weight: 500; cursor: pointer; }
+nav ul li a:hover { color: var(--primary); }
+
+/* Hero */
+.hero { padding: 3rem 0; text-align: center;
+background: url('https://thumbs.dreamstime.com/b/closeup-view-sunsetlit-power-line-insulator-stacks-detailed-look-electrical-transmission-infrastructure-witness-371970549.jpg') no-repeat center center / cover;
+position: relative; color: white; height: 60vh; display: flex; align-items: center; justify-content: center; }
+.hero::before { content: ''; position: absolute; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.5); z-index:1; }
+.hero-content { position: relative; z-index:2; }
+.hero h2 { font-family: 'Montserrat', sans-serif; font-size: 2.5rem; margin-bottom: 1rem; }
+.hero p { font-size:1.1rem; opacity:0.9; }
+.btn { margin-top: 1.5rem; padding: 12px 30px; font-size:1rem; border-radius:8px; background-color: var(--primary); color:white; border:none; cursor:pointer; }
+.btn:hover { transform: scale(1.05); }
+
+/* Question Section */
+.question-section { text-align: center; padding: 3rem 1rem 1rem 1rem; }
+.question-section h2 { color: var(--primary); font-size: 2rem; margin-bottom: 2rem; }
+.solution-container { display:flex; flex-wrap:wrap; justify-content:center; gap:1.5rem; margin-bottom:3rem; }
+.question-box { background:white; border-radius:12px; padding:2rem; flex:1 1 250px; max-width:320px; text-align:center;
+box-shadow:0 6px 18px rgba(0,0,0,0.1); transition: transform 0.3s ease, box-shadow 0.3s ease; cursor:pointer; }
+.question-box:hover { transform: scale(1.1); box-shadow:0 12px 24px rgba(0,0,0,0.2); }
+.question-box i { font-size:2rem; margin-bottom:1rem; color: var(--primary); }
+.question-box h3 { margin-bottom:0.8rem; font-size:1.3rem; line-height:1.4; }
+.question-box p { font-size:1rem; line-height:1.6; }
+
+/* Footer */
+footer { background-color: var(--dark); color:white; padding:2rem 0; text-align:center; }
+.footer-content { display:flex; flex-direction:column; align-items:center; gap:10px; }
+.footer-social a { color:white; font-size:1.5rem; margin:0 10px; transition: all 0.3s ease; }
+.footer-social a:hover { color: var(--primary); transform: translateY(-3px); }
+
+/* Responsive */
+@media (max-width:768px){ .solution-container{flex-direction:column;align-items:center;} .hero h2{font-size:2rem;} }
+</style>
+</head>
+<body>
+
+<header>
+    <div class="header-content">
+        <div class="logo"><i class="fas fa-bolt"></i>InsightGuard</div>
+        <nav>
+            <ul>
+                <li><a href="/">Home</a></li>
+                <li><a href="/upload">Upload & Analysis</a></li>
+                <li><a href="/about">About</a></li>
+                <li><a href="/contact">Contact Us</a></li>
+            </ul>
+        </nav>
+    </div>
+</header>
+
+<section class="hero">
+    <div class="hero-content">
+        <h2>Advanced Insulator Fault Detection</h2>
+        <p>Detect and visualize defects in electrical insulators from multiple angles</p>
+        <button class="btn" id="startAnalysisBtn">Start Analysis</button>
+    </div>
+</section>
+
+<section class="question-section">
+    <h2>Why InsightGuard?</h2>
+    <div class="solution-container">
+        <div class="question-box">
+            <i class="fas fa-bolt"></i>
+            <h3>Preventive Maintenance</h3>
+            <p>Identify potential failures early to reduce downtime and maintenance costs.</p>
+        </div>
+        <div class="question-box">
+            <i class="fas fa-eye"></i>
+            <h3>Accurate Inspection</h3>
+            <p>AI-powered detection reduces human error and ensures thorough analysis.</p>
+        </div>
+        <div class="question-box">
+            <i class="fas fa-chart-line"></i>
+            <h3>Operational Efficiency</h3>
+            <p>Quick analysis from multiple angles ensures faster decision-making and safe operations.</p>
+        </div>
+    </div>
+</section>
+
+<footer>
+    <div class="footer-content">
+        <div class="footer-social">
+            <a href="https://github.com/yourprofile" target="_blank"><i class="fab fa-github"></i></a>
+            <a href="https://linkedin.com/in/yourprofile" target="_blank"><i class="fab fa-linkedin"></i></a>
+        </div>
+        <p>© 2025 InsightGuard. All rights reserved.</p>
+    </div>
+</footer>
+
+<script>
+document.getElementById('startAnalysisBtn').addEventListener('click', function() {
+    window.location.href = '/upload';
+});
+</script>
+
+</body>
+</html>

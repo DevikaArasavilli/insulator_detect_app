@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>InsightGuard - Analysis Results</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+<style>
+body {
+    margin: 0;
+    font-family: 'Montserrat', sans-serif;
+    background: #f8f9fa;
+}
+header {
+    background: #212529;
+    padding: 1rem 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: white;
+    font-size: 1.5rem;
+}
+.container {
+    max-width: 1000px;
+    margin: 2rem auto;
+    padding: 20px;
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+}
+.chart-section {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+    padding: 15px;
+    border-radius: 12px;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+    background: #f9fafc;
+}
+.chart-box {
+    width: 45%;
+    height: 300px;
+}
+.bars {
+    width: 45%;
+}
+.bar-container {
+    background: #eee;
+    border-radius: 8px;
+    margin: 12px 0;
+    height: 25px;
+    overflow: hidden;
+    box-shadow: inset 0 2px 5px rgba(0,0,0,0.1);
+}
+.bar {
+    height: 100%;
+    color: white;
+    text-align: right;
+    padding-right: 8px;
+    line-height: 25px;
+    font-weight: 500;
+    font-size: 14px;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.15);
+    transition: width 0.4s ease;
+}
+.normal-bar { background: #4cc9f0; }
+.defective-bar { background: #e63946; }
+.view-section {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+}
+.view-box {
+    position: relative;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 3px 12px rgba(0,0,0,0.1);
+    cursor: pointer;
+    transition: transform 0.2s ease;
+}
+.view-box:hover { transform: scale(1.02); }
+.view-box img {
+    width: 100%;
+    height: 260px;
+    object-fit: cover;
+    display: block;
+}
+.reason-overlay {
+    position: absolute;
+    bottom: 0;
+    height: 25%;
+    background: rgba(0, 0, 0, 0.6);
+    color: white;
+    width: 100%;
+    text-align: center;
+    /* Changed to justify-content: flex-start and added padding-top for better sentence display */
+    display: flex;
+    align-items: center;
+    justify-content: center; /* Centered for single line, or flex-start with padding for multi-line */
+    padding: 5px 10px;
+    font-size: 14px;
+    line-height: 1.2;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    box-sizing: border-box; /* Include padding in the height calculation */
+}
+.view-box.active .reason-overlay {
+    opacity: 1;
+}
+.prediction {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    background: rgba(255,255,255,0.9);
+    border-radius: 6px;
+    padding: 4px 10px;
+    font-size: 14px;
+    font-weight: 600;
+}
+.prediction.defective { color: #e63946; }
+.prediction.normal { color: #4cc9f0; }
+.btn {
+    display: inline-block;
+    margin-top: 25px;
+    padding: 12px 28px;
+    background: #4361ee;
+    color: white;
+    font-weight: 600;
+    border-radius: 8px;
+    text-decoration: none;
+    transition: background 0.3s ease;
+}
+.btn:hover { background: #3a0ca3; }
+</style>
+</head>
+<body>
+
+<header><i class="fas fa-bolt"></i> InsightGuard - Analysis Results</header>
+
+<div class="container">
+    <div class="chart-section">
+        <div class="chart-box">
+            <canvas id="pieChart"></canvas>
+        </div>
+        <div class="bars">
+            <div class="bar-container">
+                <div id="normalBar" class="bar normal-bar"></div>
+            </div>
+            <div class="bar-container">
+                <div id="defectiveBar" class="bar defective-bar"></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="viewSection" class="view-section"></div>
+
+    <div style="text-align:center;">
+        <a href="/upload" class="btn">Perform New Analysis</a>
+    </div>
+</div>
+
+<script>
+// Mock resultData for demonstration if localStorage is empty
+// In a real application, ensure your '/upload' route correctly sets this.
+if (!localStorage.getItem('resultData')) {
+    const mockData = {
+        results: [
+            { view: "Front View", prediction: "Normal", confidence: 98, visualization: "https://via.placeholder.com/300x260/4cc9f0/ffffff?text=Normal+Front", reason: "No defects detected. All parts are within specifications." },
+            { view: "Top View", prediction: "Defective", confidence: 72, visualization: "https://via.placeholder.com/300x260/e63946/ffffff?text=Defective+Top", reason: "Small crack (0.5mm) and discoloration (fading) on the top surface. Requires replacement." },
+            { view: "Side View", prediction: "Normal", confidence: 85, visualization: "https://via.placeholder.com/300x260/4cc9f0/ffffff?text=Normal+Side", reason: "Smooth edges, consistent color and texture across the entire side profile." },
+            { view: "Macro View", prediction: "Defective", confidence: 65, visualization: "https://via.placeholder.com/300x260/e63946/ffffff?text=Defective+Macro", reason: "Evidence of material fatigue and micro-fractures around the main connector pin. Risk of failure." },
+            { view: "Bottom View", prediction: "Normal", confidence: 92, visualization: "https://via.placeholder.com/300x260/4cc9f0/ffffff?text=Normal+Bottom", reason: "All components intact and securely fastened. No signs of wear or damage on the base." },
+            { view: "Angle View", prediction: "Defective", confidence: 78, visualization: "https://via.placeholder.com/300x260/e63946/ffffff?text=Defective+Angle", reason: "Minor dent visible under oblique lighting on the left corner. Aesthetic defect, not functional." }
+        ]
+    };
+    localStorage.setItem('resultData', JSON.stringify(mockData));
+}
+
+// Get results from localStorage
+const resultData = JSON.parse(localStorage.getItem('resultData'));
+if(!resultData || !resultData.results){
+    alert("No analysis data found. Please upload images first.");
+    window.location.href = '/upload'; // Redirect if no data
+}
+const results = resultData.results;
+
+// Count predictions
+const normalCount = results.filter(v => v.prediction === "Normal").length;
+const defectiveCount = results.filter(v => v.prediction === "Defective").length;
+const total = normalCount + defectiveCount;
+
+// --- PIE CHART WITH "FILL" ANIMATION (like bars) ---
+setTimeout(() => {
+    // Initial data for the chart, starting with all 0s
+    const initialData = {
+        labels: ['Normal', 'Defective'],
+        datasets: [{
+            data: [0, 0], // Start with zero values for animation
+            backgroundColor: ['#4cc9f0', '#e63946'],
+            borderWidth: 2,
+            borderColor: '#fff',
+            hoverOffset: 12
+        }]
+    };
+
+    const pieChartCtx = document.getElementById('pieChart').getContext('2d');
+    const pieChart = new Chart(pieChartCtx, {
+        type: 'pie',
+        data: initialData,
+        options: {
+            animation: {
+                duration: 0 // Disable default Chart.js animation to handle it manually
+            },
+            plugins: { legend: { position: 'bottom' } },
+            responsive: true,
+            maintainAspectRatio: false
+        }
+    });
+
+    // Animate the pie chart's data
+    let currentNormal = 0;
+    let currentDefective = 0;
+    const duration = 1500; // Animation duration in ms
+    const startTime = performance.now();
+
+    function animatePieChart() {
+        const elapsedTime = performance.now() - startTime;
+        const progress = Math.min(elapsedTime / duration, 1); // Progress from 0 to 1
+
+        // Calculate current values based on progress
+        const animatedNormal = Math.floor(normalCount * progress);
+        const animatedDefective = Math.floor(defectiveCount * progress);
+
+        // Update the chart data
+        pieChart.data.datasets[0].data = [animatedNormal, animatedDefective];
+        pieChart.update();
+
+        if (progress < 1) {
+            requestAnimationFrame(animatePieChart);
+        } else {
+            // Ensure final values are exactly the target values
+            pieChart.data.datasets[0].data = [normalCount, defectiveCount];
+            pieChart.update();
+        }
+    }
+    
+    // Start the animation after a short delay
+    setTimeout(() => {
+        requestAnimationFrame(animatePieChart);
+    }, 200);
+
+}, 200); // Overall delay for the chart to appear
+
+// --- BAR ANIMATION ---
+function animateBar(barId, finalWidth, label) {
+    const bar = document.getElementById(barId);
+    let width = 0;
+    const target = (finalWidth / total) * 100;
+    const step = target / 50; // Smaller step for smoother animation
+    const interval = setInterval(() => {
+        if (width >= target) {
+            width = target;
+            clearInterval(interval);
+        } else {
+            width += step;
+        }
+        bar.style.width = `${width}%`;
+        bar.textContent = `${label}: ${finalWidth}`; // Update text during animation
+    }, 25); // Faster interval for quicker updates
+}
+
+// Start bar animations after a slight delay
+setTimeout(() => {
+    animateBar("normalBar", normalCount, "Normal");
+    animateBar("defectiveBar", defectiveCount, "Defective");
+}, 400); // Delay bar animation slightly after pie chart starts
+
+
+// --- IMAGE VIEW SECTION ---
+const section = document.getElementById("viewSection");
+results.forEach(v => {
+    const box = document.createElement("div");
+    box.className = "view-box";
+    box.innerHTML = `
+        <img src="${v.visualization}" alt="${v.view}">
+        <div class="reason-overlay">${v.reason}</div>
+        <div class="prediction ${v.prediction.toLowerCase()}">
+            ${v.view}: ${v.prediction} (${v.confidence}%)
+        </div>
+    `;
+    // Add event listener to toggle 'active' class on click
+    box.addEventListener("click", () => box.classList.toggle("active"));
+    section.appendChild(box);
+});
+</script>
+
+</body>
+</html>
